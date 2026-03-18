@@ -1,20 +1,29 @@
 #!/bin/bash
+
 set -e
 
-IMAGE_NAME=react-app
-TARGET_REPO=$1
-TAG=${2:-latest}
-
-if [ -z "$TARGET_REPO" ]; then
-  echo "Target repo missing"
+# Validate input
+if [ -z "$ENV" ]; then
+  echo "ENV not set (dev/prod)"
   exit 1
 fi
 
-echo "Building image..."
+# Set repo based on environment
+if [ "$ENV" = "dev" ]; then
+  IMAGE_NAME="$DOCKERHUB_USER/react-app-dev:latest"
+elif [ "$ENV" = "prod" ]; then
+  IMAGE_NAME="$DOCKERHUB_USER/react-app-prod:latest"
+else
+  echo "Invalid ENV value"
+  exit 1
+fi
+
+echo "Building image: $IMAGE_NAME"
+
 docker build -t $IMAGE_NAME .
 
-echo "Tagging image..."
-docker tag $IMAGE_NAME $TARGET_REPO:$TAG
+echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
 
-echo "Pushing image..."
-docker push $TARGET_REPO:$TAG
+docker push $IMAGE_NAME
+
+echo "Image pushed successfully!"
