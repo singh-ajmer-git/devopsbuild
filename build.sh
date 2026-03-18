@@ -1,11 +1,20 @@
 #!/bin/bash
-
 set -e
 
-IMAGE_NAME="$DOCKERHUB_USER/react-app:latest"
+IMAGE_NAME=react-app
+TARGET_REPO=$1
+TAG=${2:-latest}
 
+if [ -z "$TARGET_REPO" ]; then
+  echo "Target repo missing"
+  exit 1
+fi
+
+echo "Building image..."
 docker build -t $IMAGE_NAME .
 
-echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+echo "Tagging image..."
+docker tag $IMAGE_NAME $TARGET_REPO:$TAG
 
-docker push $IMAGE_NAME
+echo "Pushing image..."
+docker push $TARGET_REPO:$TAG
