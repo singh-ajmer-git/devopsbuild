@@ -14,27 +14,25 @@ fi
 
 echo "🚀 Deploying to $EC2_HOST"
 
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << EOF
+# Pass environment variables inline to avoid non-interactive Docker login issues
+ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@$EC2_HOST "
   set -e
 
-  export DOCKER_PASS="$DOCKER_PASS"
-  export DOCKER_USER="$DOCKER_USER"
+  echo '🔐 Logging into Docker Hub...'
+  echo '$DOCKER_PASS' | docker login -u '$DOCKER_USER' --password-stdin
 
-  echo "🔐 Logging into Docker Hub..."
-  echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+  echo '📥 Pulling latest image...'
+  docker pull $IMAGE_NAME
 
-  echo "📥 Pulling latest image..."
-  docker pull "$IMAGE_NAME"
-
-  echo "🛑 Stopping old container..."
+  echo '🛑 Stopping old container...'
   docker stop $CONTAINER_NAME || true
   docker rm $CONTAINER_NAME || true
 
-  echo "🚀 Starting new container..."
+  echo '🚀 Starting new container...'
   docker run -d --name $CONTAINER_NAME -p 80:80 $IMAGE_NAME
 
-  echo "🧹 Cleaning unused images..."
+  echo '🧹 Cleaning unused images...'
   docker image prune -f || true
-EOF
+"
 
 echo "✅ Deployment complete"
