@@ -39,3 +39,4 @@ ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << EOF
 EOF
 
 echo "✅ Deployment complete"
+# test to push test 101
