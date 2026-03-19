@@ -4,7 +4,7 @@ set -e
 EC2_HOST=$1
 DOCKER_USER=$2
 IMAGE_NAME=$3
-SSH_KEY="/home/ubuntu/devops-build/build/ubuntu-ssh.pem"
+SSH_KEY="/var/lib/jenkins/.ssh/ubuntu-ssh.pem"
 CONTAINER_NAME="react-app"
 
 if [ -z "$EC2_HOST" ] || [ -z "$DOCKER_USER" ] || [ -z "$IMAGE_NAME" ]; then
